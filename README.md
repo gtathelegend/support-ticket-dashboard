@@ -676,4 +676,26 @@ AI tooling was utilized during development for scaffolding, test writing, and Ty
 
 ## Demo & Screenshots
 
-> Screenshots / demo recordings can be added before submission.
+The application is deployed and available at:
+
+[Open SupportDesk](https://support-ticket-dashboard-kappa.vercel.app)
+
+### Dashboard
+
+![SupportDesk dashboard](docs/screenshots/dashboard.png)
+
+### Create Ticket
+
+![Create ticket modal](docs/screenshots/create-ticket.png)
+
+### Ticket Details & Updates
+
+![Ticket detail modal](docs/screenshots/ticket-detail.png)
+
+### Search & Filtering
+
+![Filtered ticket list](docs/screenshots/filtered-tickets.png)
+
+### Responsive Mobile Layout
+
+![SupportDesk mobile dashboard](docs/screenshots/mobile.png)
