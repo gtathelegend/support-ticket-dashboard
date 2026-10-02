@@ -320,6 +320,9 @@ const seedTickets: SeedTicket[] = [
 async function main() {
   console.log('🌱 Starting database seed with deterministic 28 support tickets...');
 
+  // Reset table to clean state before seeding deterministic records
+  await prisma.ticket.deleteMany();
+
   const now = Date.now();
   const ONE_DAY = 24 * 60 * 60 * 1000;
 

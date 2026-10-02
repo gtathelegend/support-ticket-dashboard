@@ -23,6 +23,9 @@ describe('Database Integration Tests (Requires PostgreSQL)', () => {
 
   afterAll(async () => {
     if (dbAvailable) {
+      if (testTicketId) {
+        await prisma.ticket.delete({ where: { id: testTicketId } }).catch(() => {});
+      }
       await prisma.$disconnect();
     }
   });
