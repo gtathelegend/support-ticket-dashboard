@@ -11,7 +11,7 @@ import { TicketPagination } from './components/tickets/TicketPagination';
 import { CreateTicketModal } from './components/tickets/CreateTicketModal';
 import { TicketDetailModal } from './components/tickets/TicketDetailModal';
 import { Button } from './components/common/Button';
-import { Plus, LifeBuoy } from 'lucide-react';
+import { Plus, HeartHandshake } from 'lucide-react';
 
 export function App() {
   const queryClient = useQueryClient();
@@ -163,41 +163,49 @@ export function App() {
     searchInput || statusParam !== 'ALL' || priorityParam !== 'ALL' || pageParam > 1
   );
 
+  const totalTickets = ticketsData?.pagination?.totalItems;
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-      {/* Navbar Header */}
-      <header className="border-b border-slate-800 bg-slate-900/80 sticky top-0 z-40 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-600/10 text-indigo-400 rounded-xl border border-indigo-500/20">
-              <LifeBuoy className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold tracking-tight text-slate-100 leading-none">
-                SupportDesk
-              </h1>
-              <p className="text-xs text-slate-400 mt-0.5">Ticket Operations Dashboard</p>
-            </div>
+    <div className="min-h-screen bg-[#F7F8FA] flex flex-col" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+
+      {/* ── App Shell Header ── */}
+      <header className="bg-white border-b border-[#DFE1E6] sticky top-0 z-40">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-12 flex items-center justify-between gap-4">
+          {/* Logo / Wordmark */}
+          <div className="flex items-center gap-2 shrink-0">
+            <HeartHandshake
+              className="w-4 h-4 text-[#0C66E4]"
+              aria-hidden="true"
+            />
+            <span className="text-[14px] font-bold tracking-tight text-[#172B4D]">
+              SupportDesk
+            </span>
+            <span className="hidden sm:inline-block text-[#C1C7D0] mx-1">·</span>
+            <span className="hidden sm:inline-block text-[13px] text-[#5E6C84]">
+              Ticket Operations
+            </span>
           </div>
 
+          {/* Create button */}
           <Button
+            id="create-ticket-btn"
             variant="primary"
+            size="sm"
             onClick={() => setIsCreateOpen(true)}
-            className="inline-flex items-center gap-2"
+            className="shrink-0"
           >
-            <Plus className="w-4 h-4" />
-            Create Ticket
+            <Plus className="w-3.5 h-3.5" aria-hidden="true" />
+            Create ticket
           </Button>
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* Summary Statistics KPI Cards */}
+      {/* ── Main Content ── */}
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-5 space-y-4">
+
+        {/* Metric Summary Row */}
         <section aria-labelledby="summary-heading">
-          <h2 id="summary-heading" className="sr-only">
-            Summary Metrics
-          </h2>
+          <h2 id="summary-heading" className="sr-only">Summary metrics</h2>
           <TicketSummaryCards
             summary={summaryData}
             isLoading={isSummaryLoading}
@@ -205,30 +213,43 @@ export function App() {
           />
         </section>
 
-        {/* Filter & Search Bar */}
-        <section aria-labelledby="filter-heading">
-          <h2 id="filter-heading" className="sr-only">
-            Filter Controls
-          </h2>
-          <TicketFilters
-            search={searchInput}
-            onSearchChange={setSearchInput}
-            status={statusParam}
-            onStatusChange={handleStatusChange}
-            priority={priorityParam}
-            onPriorityChange={handlePriorityChange}
-            sortOrder={sortOrderParam}
-            onSortOrderChange={handleSortOrderChange}
-            onResetFilters={handleResetFilters}
-            hasActiveFilters={hasActiveFilters}
-          />
-        </section>
+        {/* Main Panel: filter bar + table */}
+        <section
+          aria-labelledby="tickets-heading"
+          className="bg-white border border-[#DFE1E6] rounded-[6px] overflow-hidden"
+          style={{ boxShadow: '0 1px 2px rgba(9, 30, 66, 0.06)' }}
+        >
+          {/* Panel toolbar */}
+          <div className="flex items-center justify-between gap-3 px-4 py-2.5 border-b border-[#DFE1E6]">
+            <div className="flex items-center gap-2">
+              <h2 id="tickets-heading" className="text-[13px] font-semibold text-[#172B4D]">
+                Tickets
+              </h2>
+              {totalTickets !== undefined && !isTicketsLoading && (
+                <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 bg-[#F7F8FA] border border-[#DFE1E6] text-[11px] font-semibold text-[#5E6C84] rounded-full">
+                  {totalTickets}
+                </span>
+              )}
+            </div>
+          </div>
 
-        {/* Tickets List Section */}
-        <section aria-labelledby="tickets-heading" className="space-y-4">
-          <h2 id="tickets-heading" className="sr-only">
-            Ticket List
-          </h2>
+          {/* Filter bar */}
+          <div className="px-4 py-2.5 border-b border-[#DFE1E6] bg-[#FAFBFC]">
+            <TicketFilters
+              search={searchInput}
+              onSearchChange={setSearchInput}
+              status={statusParam}
+              onStatusChange={handleStatusChange}
+              priority={priorityParam}
+              onPriorityChange={handlePriorityChange}
+              sortOrder={sortOrderParam}
+              onSortOrderChange={handleSortOrderChange}
+              onResetFilters={handleResetFilters}
+              hasActiveFilters={hasActiveFilters}
+            />
+          </div>
+
+          {/* Ticket table / empty state */}
           <TicketList
             tickets={ticketsData?.items || []}
             isLoading={isTicketsLoading}
@@ -239,7 +260,7 @@ export function App() {
             onCreateTicket={() => setIsCreateOpen(true)}
           />
 
-          {/* Pagination Controls */}
+          {/* Pagination */}
           <TicketPagination
             pagination={ticketsData?.pagination}
             onPageChange={handlePageChange}
@@ -248,12 +269,12 @@ export function App() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950 py-6 text-center text-xs text-slate-500">
-        Support Ticket Dashboard • Powered by React, Express, Prisma & Neon PostgreSQL
+      {/* ── Footer ── */}
+      <footer className="border-t border-[#DFE1E6] py-3 text-center text-[11px] text-[#7A869A]">
+        SupportDesk · React · Express · Prisma · Neon PostgreSQL
       </footer>
 
-      {/* Create Ticket Modal */}
+      {/* ── Modals ── */}
       <CreateTicketModal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
@@ -262,7 +283,6 @@ export function App() {
         }}
       />
 
-      {/* Ticket Detail Modal */}
       <TicketDetailModal
         ticketId={selectedTicketId}
         isOpen={!!selectedTicketId}

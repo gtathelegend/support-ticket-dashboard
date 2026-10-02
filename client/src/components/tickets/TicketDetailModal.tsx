@@ -4,7 +4,7 @@ import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
 import { StatusBadge, PriorityBadge } from '../common/Badge';
 import { LoadingSpinner } from '../common/LoadingSpinner';
-import { Calendar, Mail, Clock, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { Mail, Calendar, Clock, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 interface TicketDetailModalProps {
   ticketId: string | null;
@@ -15,6 +15,10 @@ interface TicketDetailModalProps {
   isError: boolean;
   onUpdateTicket: (id: string, updates: { status?: Status; priority?: Priority }) => Promise<void>;
 }
+
+const detailLabelClass = 'text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide mb-1 block';
+const selectClass =
+  'w-full h-9 px-3 bg-white border border-[#DFE1E6] rounded-[4px] text-[13px] text-[#172B4D] focus:outline-none focus:ring-2 focus:ring-[#0C66E4] focus:ring-offset-1 transition-colors appearance-none cursor-pointer';
 
 export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
   ticketId,
@@ -35,6 +39,8 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
     if (ticketData) {
       setSelectedStatus(ticketData.status);
       setSelectedPriority(ticketData.priority);
+      setUpdateSuccess(false);
+      setUpdateError(null);
     }
   }, [ticketData]);
 
@@ -43,7 +49,6 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
   const formatDate = (dateString?: string) => {
     if (!dateString) return '—';
     return new Intl.DateTimeFormat('en-US', {
-      weekday: 'short',
       month: 'short',
       day: 'numeric',
       year: 'numeric',
@@ -79,116 +84,143 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Ticket Details" maxWidth="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title="Ticket details" maxWidth="lg">
       {isLoading ? (
-        <LoadingSpinner message="Fetching ticket details..." />
+        <LoadingSpinner message="Fetching ticket..." />
       ) : isError || !ticketData ? (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg text-sm">
+        <div className="px-3 py-2.5 bg-[#FFECEB] border border-[#FFC3BE] text-[#AE2A19] rounded-[4px] text-[13px]">
           Failed to load ticket details from server.
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
+
+          {/* Toast messages */}
           {updateSuccess && (
-            <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs rounded-lg flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4" />
-              Ticket status/priority updated successfully!
+            <div className="flex items-center gap-2 px-3 py-2.5 bg-[#DFFCF0] border border-[#ABF5D1] text-[#216E4A] text-[12px] rounded-[4px]">
+              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+              Changes saved successfully.
             </div>
           )}
-
           {updateError && (
-            <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs rounded-lg flex items-center gap-2">
-              <ShieldAlert className="w-4 h-4" />
+            <div className="flex items-center gap-2 px-3 py-2.5 bg-[#FFECEB] border border-[#FFC3BE] text-[#AE2A19] text-[12px] rounded-[4px]">
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
               {updateError}
             </div>
           )}
 
-          {/* Header info */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-mono">
-              <span>ID: {ticketData.id}</span>
-              <div className="flex items-center gap-2">
-                <StatusBadge status={ticketData.status} />
-                <PriorityBadge priority={ticketData.priority} />
-              </div>
+          {/* Ticket ID + current badges */}
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-[11px] text-[#7A869A] font-mono select-all" title="Ticket ID">
+              #{ticketData.id.slice(0, 8).toUpperCase()}
+            </span>
+            <div className="flex items-center gap-1.5">
+              <StatusBadge status={ticketData.status} />
+              <PriorityBadge priority={ticketData.priority} />
             </div>
-            <h3 className="text-lg font-bold text-slate-100">{ticketData.title}</h3>
+          </div>
+
+          {/* Title */}
+          <div>
+            <h3 className="text-[16px] font-semibold text-[#172B4D] leading-snug">
+              {ticketData.title}
+            </h3>
           </div>
 
           {/* Customer Email */}
-          <div className="p-3 bg-slate-950 border border-slate-800/80 rounded-lg flex items-center gap-2 text-sm text-slate-300">
-            <Mail className="w-4 h-4 text-indigo-400" />
-            <span className="font-mono text-xs text-slate-400">{ticketData.customerEmail}</span>
+          <div className="flex items-center gap-2 px-3 py-2 bg-[#F7F8FA] border border-[#DFE1E6] rounded-[4px]">
+            <Mail className="w-3.5 h-3.5 text-[#7A869A] shrink-0" aria-hidden="true" />
+            <span className="text-[12px] text-[#5E6C84] font-mono">
+              {ticketData.customerEmail}
+            </span>
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
-              Description
-            </label>
-            <div className="p-4 bg-slate-950 border border-slate-800/80 rounded-lg text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">
+            <label className={detailLabelClass}>Description</label>
+            <div className="px-3 py-2.5 bg-[#F7F8FA] border border-[#DFE1E6] rounded-[4px] text-[13px] text-[#172B4D] whitespace-pre-wrap leading-relaxed">
               {ticketData.description}
             </div>
           </div>
 
-          {/* Editable Status & Priority Section */}
-          <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl space-y-4">
-            <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-              Update Ticket State
-            </h4>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Update Status & Priority */}
+          <div className="border border-[#DFE1E6] rounded-[6px] p-3.5 space-y-3 bg-white">
+            <p className="text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+              Update ticket
+            </p>
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Status</label>
-                <select
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value as Status)}
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  <option value="OPEN">Open</option>
-                  <option value="IN_PROGRESS">In Progress</option>
-                  <option value="RESOLVED">Resolved</option>
-                </select>
+                <label htmlFor="detail-status" className={detailLabelClass}>
+                  Status
+                </label>
+                <div className="relative">
+                  <select
+                    id="detail-status"
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value as Status)}
+                    className={selectClass}
+                  >
+                    <option value="OPEN">Open</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="RESOLVED">Resolved</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-2.5 flex items-center pointer-events-none">
+                    <svg className="w-3 h-3 text-[#7A869A]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
               </div>
 
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Priority</label>
-                <select
-                  value={selectedPriority}
-                  onChange={(e) => setSelectedPriority(e.target.value as Priority)}
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  <option value="LOW">Low</option>
-                  <option value="MEDIUM">Medium</option>
-                  <option value="HIGH">High</option>
-                </select>
+                <label htmlFor="detail-priority" className={detailLabelClass}>
+                  Priority
+                </label>
+                <div className="relative">
+                  <select
+                    id="detail-priority"
+                    value={selectedPriority}
+                    onChange={(e) => setSelectedPriority(e.target.value as Priority)}
+                    className={selectClass}
+                  >
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH">High</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-2.5 flex items-center pointer-events-none">
+                    <svg className="w-3 h-3 text-[#7A869A]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Timestamps */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-400 pt-2 border-t border-slate-800">
-            <div className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-slate-500" />
-              <span>Created: {formatDate(ticketData.createdAt)}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-slate-500" />
-              <span>Updated: {formatDate(ticketData.updatedAt)}</span>
-            </div>
+          <div className="flex items-center gap-4 text-[11px] text-[#7A869A]">
+            <span className="flex items-center gap-1">
+              <Calendar className="w-3 h-3" aria-hidden="true" />
+              Created {formatDate(ticketData.createdAt)}
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock className="w-3 h-3" aria-hidden="true" />
+              Updated {formatDate(ticketData.updatedAt)}
+            </span>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-            <Button variant="secondary" onClick={onClose}>
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#DFE1E6]">
+            <Button variant="secondary" size="md" onClick={onClose}>
               Close
             </Button>
             <Button
               variant="primary"
+              size="md"
               disabled={!hasChanges}
               isLoading={isUpdating}
               onClick={handleSave}
             >
-              Save Changes
+              Save changes
             </Button>
           </div>
         </div>

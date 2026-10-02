@@ -1,13 +1,31 @@
 import React from 'react';
 import { TicketSummary } from '../../types/ticket';
 import { CardsSkeleton } from '../common/LoadingSpinner';
-import { Ticket, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface TicketSummaryCardsProps {
   summary?: TicketSummary;
   isLoading: boolean;
   isError: boolean;
 }
+
+interface MetricCardProps {
+  label: string;
+  value: number;
+  accent: string;
+}
+
+const MetricCard: React.FC<MetricCardProps> = ({ label, value, accent }) => (
+  <div className="bg-white border border-[#DFE1E6] rounded-[6px] px-4 py-3.5 flex flex-col gap-1"
+    style={{ boxShadow: '0 1px 2px 0 rgba(9, 30, 66, 0.06)' }}
+  >
+    <span className={`text-[11px] font-semibold uppercase tracking-wide ${accent}`}>
+      {label}
+    </span>
+    <span className="text-2xl font-bold text-[#172B4D] leading-none">
+      {value.toLocaleString()}
+    </span>
+  </div>
+);
 
 export const TicketSummaryCards: React.FC<TicketSummaryCardsProps> = ({
   summary,
@@ -20,70 +38,34 @@ export const TicketSummaryCards: React.FC<TicketSummaryCardsProps> = ({
 
   if (isError || !summary) {
     return (
-      <div className="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-sm">
+      <div className="px-3 py-2.5 bg-[#FFECEB] border border-[#FFC3BE] text-[#AE2A19] rounded-[6px] text-[13px]">
         Failed to load summary statistics.
       </div>
     );
   }
 
-  const cards = [
-    {
-      title: 'Total Tickets',
-      count: summary.total,
-      icon: Ticket,
-      color: 'text-indigo-400',
-      bgColor: 'bg-indigo-500/10',
-      borderColor: 'border-indigo-500/20',
-    },
-    {
-      title: 'Open',
-      count: summary.open,
-      icon: AlertCircle,
-      color: 'text-amber-400',
-      bgColor: 'bg-amber-500/10',
-      borderColor: 'border-amber-500/20',
-    },
-    {
-      title: 'In Progress',
-      count: summary.inProgress,
-      icon: Clock,
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-500/10',
-      borderColor: 'border-blue-500/20',
-    },
-    {
-      title: 'Resolved',
-      count: summary.resolved,
-      icon: CheckCircle2,
-      color: 'text-emerald-400',
-      bgColor: 'bg-emerald-500/10',
-      borderColor: 'border-emerald-500/20',
-    },
-  ];
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {cards.map((card) => {
-        const IconComponent = card.icon;
-        return (
-          <div
-            key={card.title}
-            className={`p-5 bg-slate-900 border ${card.borderColor} rounded-xl shadow-sm flex items-center justify-between transition-all hover:bg-slate-900/80`}
-          >
-            <div>
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-                {card.title}
-              </p>
-              <h3 className="text-2xl font-bold text-slate-100 mt-1">
-                {card.count.toLocaleString()}
-              </h3>
-            </div>
-            <div className={`p-3 ${card.bgColor} ${card.color} rounded-xl`}>
-              <IconComponent className="w-6 h-6" />
-            </div>
-          </div>
-        );
-      })}
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <MetricCard
+        label="Total tickets"
+        value={summary.total}
+        accent="text-[#5E6C84]"
+      />
+      <MetricCard
+        label="Open"
+        value={summary.open}
+        accent="text-[#0C66E4]"
+      />
+      <MetricCard
+        label="In Progress"
+        value={summary.inProgress}
+        accent="text-[#974F0C]"
+      />
+      <MetricCard
+        label="Resolved"
+        value={summary.resolved}
+        accent="text-[#216E4A]"
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { SearchX, Inbox, RotateCcw } from 'lucide-react';
+import { SearchX, Inbox } from 'lucide-react';
 import { Button } from './Button';
 
 interface EmptyStateProps {
@@ -15,18 +15,20 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   if (type === 'no-results') {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center bg-slate-900/40 rounded-xl border border-slate-800 my-4">
-        <div className="p-3 bg-slate-800/80 rounded-full text-slate-400 mb-3">
-          <SearchX className="w-8 h-8 text-indigo-400" />
+      <div className="flex flex-col items-center justify-center py-14 px-6 text-center">
+        <div className="w-10 h-10 rounded-full bg-[#F7F8FA] border border-[#DFE1E6] flex items-center justify-center mb-3">
+          <SearchX className="w-5 h-5 text-[#7A869A]" />
         </div>
-        <h3 className="text-lg font-semibold text-slate-200 mb-1">No tickets match your filters</h3>
-        <p className="text-sm text-slate-400 max-w-sm mb-5">
-          Try adjusting your search term, status filter, or priority filter to find what you're looking for.
+        <h3 className="text-[14px] font-semibold text-[#172B4D] mb-1">
+          No tickets found
+        </h3>
+        <p className="text-[13px] text-[#5E6C84] max-w-xs mb-4">
+          No tickets match your current filters. Try adjusting your search or
+          clearing the filters.
         </p>
         {onResetFilters && (
-          <Button variant="secondary" onClick={onResetFilters} className="inline-flex items-center gap-2">
-            <RotateCcw className="w-4 h-4" />
-            Reset All Filters
+          <Button variant="secondary" size="sm" onClick={onResetFilters}>
+            Clear filters
           </Button>
         )}
       </div>
@@ -34,17 +36,19 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-12 text-center bg-slate-900/40 rounded-xl border border-slate-800 my-4">
-      <div className="p-3 bg-slate-800/80 rounded-full text-slate-400 mb-3">
-        <Inbox className="w-8 h-8 text-indigo-400" />
+    <div className="flex flex-col items-center justify-center py-14 px-6 text-center">
+      <div className="w-10 h-10 rounded-full bg-[#F7F8FA] border border-[#DFE1E6] flex items-center justify-center mb-3">
+        <Inbox className="w-5 h-5 text-[#7A869A]" />
       </div>
-      <h3 className="text-lg font-semibold text-slate-200 mb-1">No support tickets yet</h3>
-      <p className="text-sm text-slate-400 max-w-sm mb-5">
-        There are currently no support tickets in the database. Create a new ticket to get started.
+      <h3 className="text-[14px] font-semibold text-[#172B4D] mb-1">
+        No support tickets
+      </h3>
+      <p className="text-[13px] text-[#5E6C84] max-w-xs mb-4">
+        There are no tickets yet. Create a new ticket to get started.
       </p>
       {onCreateTicket && (
-        <Button variant="primary" onClick={onCreateTicket}>
-          Create First Ticket
+        <Button variant="primary" size="sm" onClick={onCreateTicket}>
+          Create ticket
         </Button>
       )}
     </div>

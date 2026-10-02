@@ -3,7 +3,7 @@ import { Ticket } from '../../types/ticket';
 import { StatusBadge, PriorityBadge } from '../common/Badge';
 import { TableSkeleton } from '../common/LoadingSpinner';
 import { EmptyState } from '../common/EmptyState';
-import { Calendar, Mail, ExternalLink } from 'lucide-react';
+import { Mail, Calendar } from 'lucide-react';
 
 interface TicketListProps {
   tickets: Ticket[];
@@ -14,6 +14,15 @@ interface TicketListProps {
   onResetFilters: () => void;
   onCreateTicket: () => void;
 }
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date);
+};
 
 export const TicketList: React.FC<TicketListProps> = ({
   tickets,
@@ -30,8 +39,8 @@ export const TicketList: React.FC<TicketListProps> = ({
 
   if (isError) {
     return (
-      <div className="p-6 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-center my-4">
-        Failed to fetch support tickets from server. Please check your backend connection.
+      <div className="px-4 py-3 bg-[#FFECEB] border border-[#FFC3BE] text-[#AE2A19] rounded-[6px] text-[13px] text-center">
+        Failed to fetch tickets from server. Please check your backend connection.
       </div>
     );
   }
@@ -46,111 +55,123 @@ export const TicketList: React.FC<TicketListProps> = ({
     );
   }
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
-
   return (
-    <div className="space-y-4">
-      {/* Desktop Table View (md and up) */}
-      <div className="hidden md:block bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-950/80 border-b border-slate-800 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                <th className="py-3.5 px-4">Ticket Title</th>
-                <th className="py-3.5 px-4">Customer Email</th>
-                <th className="py-3.5 px-4">Priority</th>
-                <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-4">Created Date</th>
-                <th className="py-3.5 px-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/60 text-sm text-slate-200">
-              {tickets.map((ticket) => (
-                <tr
-                  key={ticket.id}
-                  onClick={() => onSelectTicket(ticket)}
-                  className="hover:bg-slate-800/40 cursor-pointer transition-colors group"
-                >
-                  <td className="py-4 px-4 font-medium text-slate-100 max-w-xs truncate group-hover:text-indigo-400">
+    <>
+      {/* Desktop Table */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-[#DFE1E6] bg-[#F7F8FA]">
+              <th className="py-2.5 px-4 text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+                Ticket
+              </th>
+              <th className="py-2.5 px-4 text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+                Customer
+              </th>
+              <th className="py-2.5 px-4 text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+                Priority
+              </th>
+              <th className="py-2.5 px-4 text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+                Status
+              </th>
+              <th className="py-2.5 px-4 text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+                Created
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {tickets.map((ticket, idx) => (
+              <tr
+                key={ticket.id}
+                onClick={() => onSelectTicket(ticket)}
+                className={`border-b border-[#DFE1E6] cursor-pointer hover:bg-[#F7F8FA] transition-colors group ${
+                  idx === tickets.length - 1 ? 'border-b-0' : ''
+                }`}
+                tabIndex={0}
+                role="button"
+                aria-label={`View ticket: ${ticket.title}`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelectTicket(ticket);
+                  }
+                }}
+              >
+                <td className="py-3 px-4 max-w-[280px]">
+                  <span
+                    className="text-[13px] font-medium text-[#172B4D] truncate block group-hover:text-[#0C66E4] transition-colors"
+                    title={ticket.title}
+                  >
                     {ticket.title}
-                  </td>
-                  <td className="py-4 px-4 text-slate-400 text-xs font-mono">
+                  </span>
+                </td>
+                <td className="py-3 px-4">
+                  <span className="text-[12px] text-[#5E6C84] font-mono truncate block max-w-[180px]">
                     {ticket.customerEmail}
-                  </td>
-                  <td className="py-4 px-4">
-                    <PriorityBadge priority={ticket.priority} />
-                  </td>
-                  <td className="py-4 px-4">
-                    <StatusBadge status={ticket.status} />
-                  </td>
-                  <td className="py-4 px-4 text-xs text-slate-400">
+                  </span>
+                </td>
+                <td className="py-3 px-4">
+                  <PriorityBadge priority={ticket.priority} />
+                </td>
+                <td className="py-3 px-4">
+                  <StatusBadge status={ticket.status} />
+                </td>
+                <td className="py-3 px-4">
+                  <span className="text-[12px] text-[#7A869A]">
                     {formatDate(ticket.createdAt)}
-                  </td>
-                  <td className="py-4 px-4 text-right">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSelectTicket(ticket);
-                      }}
-                      className="inline-flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-medium p-1 hover:bg-slate-800 rounded transition-colors"
-                    >
-                      View
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {/* Mobile Cards View (below md) */}
-      <div className="md:hidden space-y-3">
+      {/* Mobile Card List */}
+      <div className="md:hidden space-y-2">
         {tickets.map((ticket) => (
           <div
             key={ticket.id}
             onClick={() => onSelectTicket(ticket)}
-            className="p-4 bg-slate-900 border border-slate-800 rounded-xl space-y-3 cursor-pointer hover:border-slate-700 transition-all active:scale-[0.99]"
+            className="bg-white border border-[#DFE1E6] rounded-[6px] p-3.5 cursor-pointer hover:border-[#C1C7D0] hover:bg-[#F7F8FA] transition-colors"
+            style={{ boxShadow: '0 1px 2px rgba(9, 30, 66, 0.06)' }}
+            role="button"
+            tabIndex={0}
+            aria-label={`View ticket: ${ticket.title}`}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSelectTicket(ticket);
+              }
+            }}
           >
-            <div className="flex items-start justify-between gap-2">
-              <h4 className="font-semibold text-slate-100 text-sm line-clamp-2">
+            {/* Title + Status */}
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <h4 className="text-[13px] font-semibold text-[#172B4D] leading-snug line-clamp-2 flex-1">
                 {ticket.title}
               </h4>
               <StatusBadge status={ticket.status} />
             </div>
 
-            <p className="text-xs text-slate-400 line-clamp-2">
-              {ticket.description}
-            </p>
-
-            <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/80">
-              <div className="flex items-center gap-1.5 font-mono text-[11px]">
-                <Mail className="w-3.5 h-3.5 text-slate-500" />
-                <span className="truncate max-w-[140px]">{ticket.customerEmail}</span>
-              </div>
-              <PriorityBadge priority={ticket.priority} />
+            {/* Customer email */}
+            <div className="flex items-center gap-1.5 mb-2.5">
+              <Mail className="w-3 h-3 text-[#7A869A] shrink-0" aria-hidden="true" />
+              <span className="text-[11px] text-[#5E6C84] font-mono truncate">
+                {ticket.customerEmail}
+              </span>
             </div>
 
-            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-              <span className="flex items-center gap-1">
-                <Calendar className="w-3 h-3" />
+            {/* Footer: Priority + Date */}
+            <div className="flex items-center justify-between pt-2 border-t border-[#DFE1E6]">
+              <PriorityBadge priority={ticket.priority} />
+              <div className="flex items-center gap-1 text-[11px] text-[#7A869A]">
+                <Calendar className="w-3 h-3" aria-hidden="true" />
                 {formatDate(ticket.createdAt)}
-              </span>
-              <span className="text-indigo-400 font-medium">View Details →</span>
+              </div>
             </div>
           </div>
         ))}
       </div>
-    </div>
+    </>
   );
 };
